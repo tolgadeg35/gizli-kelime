@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { Player, Role, EndReason, GameSettings } from '../types';
-import { Play, Pause, AlertTriangle, SkipForward, Gavel, Timer, Mic, User } from 'lucide-react';
+import { Play, Pause, AlertTriangle, SkipForward, Gavel, Mic, User } from 'lucide-react';
 
 interface GameScreenProps {
   players: Player[];
@@ -27,6 +28,8 @@ const GameScreen: React.FC<GameScreenProps> = ({
   const totalTimerRef = useRef<number | null>(null);
   const turnTimerRef = useRef<number | null>(null);
 
+  const currentPlayer = players[currentPlayerIdx];
+
   // Total Timer Logic
   useEffect(() => {
     if (isPaused) return;
@@ -50,14 +53,19 @@ const GameScreen: React.FC<GameScreenProps> = ({
       setTurnTimeLeft((prev) => {
         if (prev <= 1) {
           if (turnTimerRef.current) clearInterval(turnTimerRef.current);
-          onEndGame(EndReason.TURN_TIME_UP);
+          // Check who ran out of time
+          if (currentPlayer.role === Role.IMPOSTER) {
+            onEndGame(EndReason.IMPOSTER_TIMEOUT);
+          } else {
+            onEndGame(EndReason.CIVILIAN_TIMEOUT);
+          }
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
     return () => { if (turnTimerRef.current) clearInterval(turnTimerRef.current); };
-  }, [currentPlayerIdx, isPaused]);
+  }, [currentPlayerIdx, isPaused, currentPlayer.role, onEndGame]);
 
   const nextTurn = () => {
     setTurnTimeLeft(settings.turnTimeSeconds);
@@ -70,8 +78,6 @@ const GameScreen: React.FC<GameScreenProps> = ({
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
-  const currentPlayer = players[currentPlayerIdx];
-  
   // Percentages for bars
   const totalProgress = (totalTimeLeft / settings.totalTimeSeconds) * 100;
   const turnProgress = (turnTimeLeft / settings.turnTimeSeconds) * 100;

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Player, Role, EndReason, SecretData } from '../types';
 import { Trophy, Skull, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
@@ -15,16 +16,8 @@ const ResultScreen: React.FC<ResultScreenProps> = ({ players, secretData, endRea
   const [phase, setPhase] = useState<'ACTION' | 'REVEAL'>('ACTION'); // ACTION (Vote/Guess) -> REVEAL (Winner)
 
   const imposters = players.filter(p => p.role === Role.IMPOSTER);
-  const isImposterGuessing = endReason === EndReason.IMPOSTER_GUESS_CORRECT; // Re-using enum slightly incorrectly in parent, fixing logic here
+  const isImposterGuessing = endReason === EndReason.IMPOSTER_GUESS_CORRECT; 
   
-  // Logic Fix: The parent passes the 'Trigger', here we handle the sub-logic
-  // But to simplify for this demo, let's assume 'Action' phase is handled if needed.
-  
-  // Actually, to make it robust:
-  // If EndReason is TOTAL_TIME_UP or VOTE -> Show Voting UI
-  // If EndReason is ABORTED (Imposter Guess) -> Show Guess Input UI
-  // If EndReason is TURN_TIME_UP -> Show Result directly (Someone lost)
-
   const [voteConfirmed, setVoteConfirmed] = useState(false);
   const [guessConfirmed, setGuessConfirmed] = useState(false);
   const [guessIsCorrect, setGuessIsCorrect] = useState(false);
@@ -116,12 +109,20 @@ const ResultScreen: React.FC<ResultScreenProps> = ({ players, secretData, endRea
 
   const isImposter = (id: string) => imposters.some(imp => imp.id === id);
 
-  if (endReason === EndReason.TURN_TIME_UP) {
-    // Current player lost due to time. 
-    // Simplified: We assume civilians win if imposter times out and vice versa? 
-    // Or just "Game Over". Let's say "Zaman Doldu".
+  if (endReason === EndReason.CIVILIAN_TIMEOUT) {
+    title = "İMPOSTER KAZANDI!";
+    winnerText = "Sivil Süre Aşımı";
+    winnerColor = "text-red-500";
+    description = "Sıradaki sivil süresi içinde kelime söyleyemedi ve elendi.";
+  } else if (endReason === EndReason.IMPOSTER_TIMEOUT) {
+    title = "SİVİLLER KAZANDI!";
+    winnerText = "İmposter Konuşamadı";
+    winnerColor = "text-green-500";
+    description = "İmposter süresi içinde kelime bulamadı veya söyleyemedi.";
+  } else if (endReason === EndReason.TURN_TIME_UP) {
+    // Fallback logic
     title = "SÜRE BİTTİ!";
-    description = "Bir oyuncu tur süresinde kelime söyleyemedi.";
+    description = "Süre doldu, oyun sona erdi.";
     winnerText = "Oyun Bitti";
     winnerColor = "text-slate-400";
   } else if (voteConfirmed) {

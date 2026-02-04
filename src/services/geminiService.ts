@@ -1,4 +1,4 @@
-import { SecretData, GameSettings } from '../types';
+import { SecretData, GameSettings, Difficulty } from '../types';
 import { STATIC_WORD_POOL } from '../data/wordPool';
 
 // AI (GoogleGenAI) imports and initialization removed.
@@ -11,9 +11,11 @@ export const generateSecretData = async (settings: GameSettings): Promise<Secret
   let filteredPool = pool;
 
   // 1. First Pass: Try to filter by BOTH Category and Difficulty
-  if (difficulty) {
+  // Only filter by difficulty if a specific difficulty is chosen (not RANDOM)
+  if (difficulty && difficulty !== Difficulty.RANDOM) {
     filteredPool = filteredPool.filter(w => w.difficulties.includes(difficulty));
   }
+  
   if (categories && categories.length > 0) {
     filteredPool = filteredPool.filter(w => w.categories.some(cat => categories.includes(cat)));
   }
@@ -28,7 +30,8 @@ export const generateSecretData = async (settings: GameSettings): Promise<Secret
   }
 
   // If still empty (or if no categories were selected but difficulty was too strict), try filtering ONLY by Difficulty
-  if (filteredPool.length === 0 && difficulty) {
+  // Only try this fallback if difficulty is NOT random (since random implies we accept anything)
+  if (filteredPool.length === 0 && difficulty && difficulty !== Difficulty.RANDOM) {
     filteredPool = pool.filter(w => w.difficulties.includes(difficulty));
   }
 

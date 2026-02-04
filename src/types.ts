@@ -1,3 +1,4 @@
+
 export enum GamePhase {
   SETUP = 'SETUP',
   LOADING = 'LOADING',
@@ -22,7 +23,8 @@ export interface Player {
 export enum Difficulty {
   EASY = 'Kolay',
   MEDIUM = 'Orta',
-  HARD = 'Zor'
+  HARD = 'Zor',
+  RANDOM = 'Rastgele'
 }
 
 export interface GameSettings {
@@ -49,7 +51,9 @@ export interface WordDefinition {
 
 export enum EndReason {
   TOTAL_TIME_UP = 'TOTAL_TIME_UP',
-  TURN_TIME_UP = 'TURN_TIME_UP',
+  TURN_TIME_UP = 'TURN_TIME_UP', // Legacy fallback
+  CIVILIAN_TIMEOUT = 'CIVILIAN_TIMEOUT', // New: Civilian ran out of time -> Imposter wins
+  IMPOSTER_TIMEOUT = 'IMPOSTER_TIMEOUT', // New: Imposter ran out of time -> Civilians win
   IMPOSTER_GUESS_CORRECT = 'IMPOSTER_GUESS_CORRECT',
   IMPOSTER_GUESS_WRONG = 'IMPOSTER_GUESS_WRONG',
   VOTE_CORRECT = 'VOTE_CORRECT',
