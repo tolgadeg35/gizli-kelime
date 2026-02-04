@@ -18,7 +18,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
     imposterCount: 1,
     useImposterHint: true,
     categories: [],
-    difficulty: Difficulty.EASY
+    difficulty: Difficulty.RANDOM
   });
 
   const addPlayer = () => {
